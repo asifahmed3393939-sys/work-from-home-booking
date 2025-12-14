@@ -238,6 +238,17 @@
             font-size: 1.2em;
         }
         
+        .error-message {
+            display: none;
+            background: #f44336;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+        
         @media (max-width: 768px) {
             header h1 {
                 font-size: 1.8em;
@@ -332,7 +343,11 @@
             <h2>📅 Book Your Free Consultation Meeting</h2>
             
             <div class="success-message" id="successMessage">
-                ✅ Thank you! Your meeting request has been submitted. Redirecting to WhatsApp...
+                ✅ Thank you! Your booking has been submitted successfully. We'll contact you within 24 hours!
+            </div>
+            
+            <div class="error-message" id="errorMessage">
+                ❌ Sorry, there was an error submitting your booking. Please try again or contact us directly at asifahmed3393939@gmail.com
             </div>
             
             <form class="booking-form" id="bookingForm">
@@ -405,12 +420,18 @@
         
         <footer>
             <p><strong>WorkFromHome Connect</strong> - Empowering People to Work Remotely</p>
-            <p>📧 Contact: support@wfhconnect.com | 📱 WhatsApp: +91 90648 17752</p>
+            <p>📧 Email: asifahmed3393939@gmail.com | 📱 Phone: +91 90648 17752</p>
             <p style="margin-top: 15px; font-size: 0.9em;">© 2025 WorkFromHome Connect. All rights reserved.</p>
         </footer>
     </div>
     
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script>
+        // Initialize EmailJS with public key
+        (function(){
+            emailjs.init("YOUR_PUBLIC_KEY"); // You need to replace this
+        })();
+        
         document.getElementById('bookingForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -420,54 +441,61 @@
             submitBtn.textContent = 'Sending...';
             
             // Get form data
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const phone = document.getElementById('phone').value;
-            const location = document.getElementById('location').value;
-            const experience = document.getElementById('experience').value;
-            const interest = document.getElementById('interest').value;
-            const preferredTime = document.getElementById('preferred-time').value;
-            const message = document.getElementById('message').value || 'No additional message';
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                location: document.getElementById('location').value,
+                experience: document.getElementById('experience').value,
+                interest: document.getElementById('interest').value,
+                preferredTime: document.getElementById('preferred-time').value,
+                message: document.getElementById('message').value || 'No additional message',
+                timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+            };
             
-            // Create WhatsApp message
-            const whatsappMessage = `🚀 *NEW BOOKING REQUEST*
+            // Create email body
+            const emailBody = `
+NEW BOOKING REQUEST
 
-👤 *Name:* ${name}
-📧 *Email:* ${email}
-📱 *Phone:* ${phone}
-📍 *Location:* ${location}
+Name: ${formData.name}
+Email: ${formData.email}
+Phone: ${formData.phone}
+Location: ${formData.location}
 
-💼 *Experience:* ${experience}
-🎯 *Interest:* ${interest}
-⏰ *Preferred Time:* ${preferredTime}
+Experience: ${formData.experience}
+Interest: ${formData.interest}
+Preferred Time: ${formData.preferredTime}
 
-💬 *Message:*
-${message}
+Message:
+${formData.message}
 
----
-📅 Submitted: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}`;
-
-            // Your WhatsApp number (with country code, no + or spaces)
-            const yourWhatsAppNumber = '919064817752';
+Submitted: ${formData.timestamp}
+            `;
             
-            // Create WhatsApp URL
-            const whatsappURL = `https://wa.me/${yourWhatsAppNumber}?text=${encodeURIComponent(whatsappMessage)}`;
-            
-            // Save to localStorage as backup
-            let bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
-            bookings.push({
-                name, email, phone, location, experience, interest, preferredTime, message,
-                timestamp: new Date().toISOString()
-            });
-            localStorage.setItem('bookings', JSON.stringify(bookings));
-            
-            // Show success message
-            document.getElementById('successMessage').style.display = 'block';
-            document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
-            
-            // Redirect to WhatsApp after 2 seconds
-            setTimeout(function() {
-                window.open(whatsappURL, '_blank');
+            // Send email using EmailJS
+            emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
+                to_email: "asifahmed3393939@gmail.com",
+                from_name: formData.name,
+                from_email: formData.email,
+                phone: formData.phone,
+                location: formData.location,
+                experience: formData.experience,
+                interest: formData.interest,
+                preferred_time: formData.preferredTime,
+                message: formData.message,
+                timestamp: formData.timestamp
+            })
+            .then(function(response) {
+                console.log('SUCCESS!', response.status, response.text);
+                
+                // Save to localStorage as backup
+                let bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+                bookings.push(formData);
+                localStorage.setItem('bookings', JSON.stringify(bookings));
+                
+                // Show success message
+                document.getElementById('successMessage').style.display = 'block';
+                document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
                 
                 // Reset form
                 document.getElementById('bookingForm').reset();
@@ -477,8 +505,22 @@ ${message}
                 // Hide success message after 5 seconds
                 setTimeout(function() {
                     document.getElementById('successMessage').style.display = 'none';
-                }, 3000);
-            }, 2000);
+                }, 5000);
+            }, function(error) {
+                console.log('FAILED...', error);
+                
+                // Show error message
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('errorMessage').scrollIntoView({ behavior: 'smooth' });
+                
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Book My Free Meeting';
+                
+                // Hide error message after 5 seconds
+                setTimeout(function() {
+                    document.getElementById('errorMessage').style.display = 'none';
+                }, 5000);
+            });
         });
         
         // Smooth scrolling for anchor links
