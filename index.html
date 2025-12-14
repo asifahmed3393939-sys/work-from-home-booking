@@ -187,6 +187,11 @@
             transform: translateY(-2px);
         }
         
+        .submit-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -327,7 +332,7 @@
             <h2>📅 Book Your Free Consultation Meeting</h2>
             
             <div class="success-message" id="successMessage">
-                ✅ Thank you! Your meeting request has been submitted. We'll contact you within 24 hours!
+                ✅ Thank you! Your meeting request has been submitted. Redirecting to WhatsApp...
             </div>
             
             <form class="booking-form" id="bookingForm">
@@ -355,10 +360,10 @@
                     <label for="experience">Current Work Experience</label>
                     <select id="experience" name="experience" required>
                         <option value="">Select your experience level</option>
-                        <option value="no-experience">No Experience</option>
-                        <option value="0-2-years">0-2 Years</option>
-                        <option value="2-5-years">2-5 Years</option>
-                        <option value="5-plus-years">5+ Years</option>
+                        <option value="No Experience">No Experience</option>
+                        <option value="0-2 Years">0-2 Years</option>
+                        <option value="2-5 Years">2-5 Years</option>
+                        <option value="5+ Years">5+ Years</option>
                     </select>
                 </div>
                 
@@ -366,15 +371,15 @@
                     <label for="interest">What interests you? *</label>
                     <select id="interest" name="interest" required>
                         <option value="">Select an option</option>
-                        <option value="data-entry">Data Entry</option>
-                        <option value="content-writing">Content Writing</option>
-                        <option value="customer-support">Customer Support</option>
-                        <option value="virtual-assistant">Virtual Assistant</option>
-                        <option value="graphic-design">Graphic Design</option>
-                        <option value="programming">Programming/Development</option>
-                        <option value="digital-marketing">Digital Marketing</option>
-                        <option value="teaching">Online Teaching</option>
-                        <option value="other">Other</option>
+                        <option value="Data Entry">Data Entry</option>
+                        <option value="Content Writing">Content Writing</option>
+                        <option value="Customer Support">Customer Support</option>
+                        <option value="Virtual Assistant">Virtual Assistant</option>
+                        <option value="Graphic Design">Graphic Design</option>
+                        <option value="Programming/Development">Programming/Development</option>
+                        <option value="Digital Marketing">Digital Marketing</option>
+                        <option value="Online Teaching">Online Teaching</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
                 
@@ -382,10 +387,10 @@
                     <label for="preferred-time">Preferred Meeting Time</label>
                     <select id="preferred-time" name="preferred-time" required>
                         <option value="">Select preferred time</option>
-                        <option value="morning">Morning (9 AM - 12 PM)</option>
-                        <option value="afternoon">Afternoon (12 PM - 4 PM)</option>
-                        <option value="evening">Evening (4 PM - 8 PM)</option>
-                        <option value="night">Night (8 PM - 10 PM)</option>
+                        <option value="Morning (9 AM - 12 PM)">Morning (9 AM - 12 PM)</option>
+                        <option value="Afternoon (12 PM - 4 PM)">Afternoon (12 PM - 4 PM)</option>
+                        <option value="Evening (4 PM - 8 PM)">Evening (4 PM - 8 PM)</option>
+                        <option value="Night (8 PM - 10 PM)">Night (8 PM - 10 PM)</option>
                     </select>
                 </div>
                 
@@ -394,13 +399,13 @@
                     <textarea id="message" name="message" rows="4" placeholder="Share your goals, skills, or any questions you have..."></textarea>
                 </div>
                 
-                <button type="submit" class="submit-button">🚀 Book My Free Meeting</button>
+                <button type="submit" class="submit-button" id="submitBtn">🚀 Book My Free Meeting</button>
             </form>
         </div>
         
         <footer>
             <p><strong>WorkFromHome Connect</strong> - Empowering People to Work Remotely</p>
-            <p>📧 Contact: support@wfhconnect.com | 📱 WhatsApp: +91 XXXXX XXXXX</p>
+            <p>📧 Contact: support@wfhconnect.com | 📱 WhatsApp: +91 90648 17752</p>
             <p style="margin-top: 15px; font-size: 0.9em;">© 2025 WorkFromHome Connect. All rights reserved.</p>
         </footer>
     </div>
@@ -409,33 +414,74 @@
         document.getElementById('bookingForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                location: document.getElementById('location').value,
-                experience: document.getElementById('experience').value,
-                interest: document.getElementById('interest').value,
-                preferredTime: document.getElementById('preferred-time').value,
-                message: document.getElementById('message').value,
-                timestamp: new Date().toISOString()
-            };
+            // Disable submit button
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
             
+            // Get form data
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const location = document.getElementById('location').value;
+            const experience = document.getElementById('experience').value;
+            const interest = document.getElementById('interest').value;
+            const preferredTime = document.getElementById('preferred-time').value;
+            const message = document.getElementById('message').value || 'No additional message';
+            
+            // Create WhatsApp message
+            const whatsappMessage = `🚀 *NEW BOOKING REQUEST*
+
+👤 *Name:* ${name}
+📧 *Email:* ${email}
+📱 *Phone:* ${phone}
+📍 *Location:* ${location}
+
+💼 *Experience:* ${experience}
+🎯 *Interest:* ${interest}
+⏰ *Preferred Time:* ${preferredTime}
+
+💬 *Message:*
+${message}
+
+---
+📅 Submitted: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}`;
+
+            // Your WhatsApp number (with country code, no + or spaces)
+            const yourWhatsAppNumber = '919064817752';
+            
+            // Create WhatsApp URL
+            const whatsappURL = `https://wa.me/${yourWhatsAppNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+            
+            // Save to localStorage as backup
             let bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
-            bookings.push(formData);
+            bookings.push({
+                name, email, phone, location, experience, interest, preferredTime, message,
+                timestamp: new Date().toISOString()
+            });
             localStorage.setItem('bookings', JSON.stringify(bookings));
             
+            // Show success message
             document.getElementById('successMessage').style.display = 'block';
-            this.reset();
             document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
             
+            // Redirect to WhatsApp after 2 seconds
             setTimeout(function() {
-                document.getElementById('successMessage').style.display = 'none';
-            }, 5000);
-            
-            console.log('Booking submitted:', formData);
+                window.open(whatsappURL, '_blank');
+                
+                // Reset form
+                document.getElementById('bookingForm').reset();
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Book My Free Meeting';
+                
+                // Hide success message after 5 seconds
+                setTimeout(function() {
+                    document.getElementById('successMessage').style.display = 'none';
+                }, 3000);
+            }, 2000);
         });
         
+        // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
