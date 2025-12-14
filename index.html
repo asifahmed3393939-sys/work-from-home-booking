@@ -238,17 +238,6 @@
             font-size: 1.2em;
         }
         
-        .error-message {
-            display: none;
-            background: #f44336;
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.2em;
-        }
-        
         @media (max-width: 768px) {
             header h1 {
                 font-size: 1.8em;
@@ -343,37 +332,33 @@
             <h2>📅 Book Your Free Consultation Meeting</h2>
             
             <div class="success-message" id="successMessage">
-                ✅ Thank you! Your booking has been submitted successfully. We'll contact you within 24 hours!
+                ✅ Thank you! Your booking has been submitted. Sending notification...
             </div>
             
-            <div class="error-message" id="errorMessage">
-                ❌ Sorry, there was an error submitting your booking. Please try again or contact us directly at asifahmed3393939@gmail.com
-            </div>
-            
-            <form class="booking-form" id="bookingForm">
+            <form class="booking-form" id="bookingForm" action="https://docs.google.com/forms/d/e/1FAIpQLSdummy/formResponse" method="POST" target="hidden_iframe">
                 <div class="form-group">
                     <label for="name">Full Name *</label>
-                    <input type="text" id="name" name="name" required placeholder="Enter your full name">
+                    <input type="text" id="name" name="entry.1234567890" required placeholder="Enter your full name">
                 </div>
                 
                 <div class="form-group">
                     <label for="email">Email Address *</label>
-                    <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+                    <input type="email" id="email" name="entry.0987654321" required placeholder="your.email@example.com">
                 </div>
                 
                 <div class="form-group">
                     <label for="phone">Phone Number *</label>
-                    <input type="tel" id="phone" name="phone" required placeholder="+91 XXXXX XXXXX">
+                    <input type="tel" id="phone" name="entry.1111111111" required placeholder="+91 XXXXX XXXXX">
                 </div>
                 
                 <div class="form-group">
                     <label for="location">Your Location *</label>
-                    <input type="text" id="location" name="location" required placeholder="City, State">
+                    <input type="text" id="location" name="entry.2222222222" required placeholder="City, State">
                 </div>
                 
                 <div class="form-group">
                     <label for="experience">Current Work Experience</label>
-                    <select id="experience" name="experience" required>
+                    <select id="experience" name="entry.3333333333" required>
                         <option value="">Select your experience level</option>
                         <option value="No Experience">No Experience</option>
                         <option value="0-2 Years">0-2 Years</option>
@@ -384,7 +369,7 @@
                 
                 <div class="form-group">
                     <label for="interest">What interests you? *</label>
-                    <select id="interest" name="interest" required>
+                    <select id="interest" name="entry.4444444444" required>
                         <option value="">Select an option</option>
                         <option value="Data Entry">Data Entry</option>
                         <option value="Content Writing">Content Writing</option>
@@ -400,7 +385,7 @@
                 
                 <div class="form-group">
                     <label for="preferred-time">Preferred Meeting Time</label>
-                    <select id="preferred-time" name="preferred-time" required>
+                    <select id="preferred-time" name="entry.5555555555" required>
                         <option value="">Select preferred time</option>
                         <option value="Morning (9 AM - 12 PM)">Morning (9 AM - 12 PM)</option>
                         <option value="Afternoon (12 PM - 4 PM)">Afternoon (12 PM - 4 PM)</option>
@@ -411,11 +396,13 @@
                 
                 <div class="form-group">
                     <label for="message">Tell us about yourself (Optional)</label>
-                    <textarea id="message" name="message" rows="4" placeholder="Share your goals, skills, or any questions you have..."></textarea>
+                    <textarea id="message" name="entry.6666666666" rows="4" placeholder="Share your goals, skills, or any questions you have..."></textarea>
                 </div>
                 
                 <button type="submit" class="submit-button" id="submitBtn">🚀 Book My Free Meeting</button>
             </form>
+            
+            <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
         </div>
         
         <footer>
@@ -425,22 +412,14 @@
         </footer>
     </div>
     
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script>
-        // Initialize EmailJS with public key
-        (function(){
-            emailjs.init("YOUR_PUBLIC_KEY"); // You need to replace this
-        })();
-        
         document.getElementById('bookingForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Disable submit button
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.textContent = 'Sending...';
             
-            // Get form data
             const formData = {
                 name: document.getElementById('name').value,
                 email: document.getElementById('email').value,
@@ -453,9 +432,43 @@
                 timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
             };
             
-            // Create email body
-            const emailBody = `
-NEW BOOKING REQUEST
+            // Create WhatsApp message
+            const whatsappMessage = `🚀 *NEW BOOKING REQUEST*
+
+👤 *Name:* ${formData.name}
+📧 *Email:* ${formData.email}
+📱 *Phone:* ${formData.phone}
+📍 *Location:* ${formData.location}
+
+💼 *Experience:* ${formData.experience}
+🎯 *Interest:* ${formData.interest}
+⏰ *Preferred Time:* ${formData.preferredTime}
+
+💬 *Message:*
+${formData.message}
+
+---
+📅 Submitted: ${formData.timestamp}`;
+
+            const yourWhatsAppNumber = '919064817752';
+            const whatsappURL = `https://wa.me/${yourWhatsAppNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+            
+            // Save to localStorage
+            let bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+            bookings.push(formData);
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+            
+            // Show success message
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
+            
+            // Open WhatsApp
+            setTimeout(function() {
+                window.open(whatsappURL, '_blank');
+                
+                // Also send email via mailto (opens email client)
+                const emailSubject = encodeURIComponent('🚀 New Booking Request - ' + formData.name);
+                const emailBody = encodeURIComponent(`NEW BOOKING REQUEST
 
 Name: ${formData.name}
 Email: ${formData.email}
@@ -469,61 +482,22 @@ Preferred Time: ${formData.preferredTime}
 Message:
 ${formData.message}
 
-Submitted: ${formData.timestamp}
-            `;
-            
-            // Send email using EmailJS
-            emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
-                to_email: "asifahmed3393939@gmail.com",
-                from_name: formData.name,
-                from_email: formData.email,
-                phone: formData.phone,
-                location: formData.location,
-                experience: formData.experience,
-                interest: formData.interest,
-                preferred_time: formData.preferredTime,
-                message: formData.message,
-                timestamp: formData.timestamp
-            })
-            .then(function(response) {
-                console.log('SUCCESS!', response.status, response.text);
+Submitted: ${formData.timestamp}`);
                 
-                // Save to localStorage as backup
-                let bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
-                bookings.push(formData);
-                localStorage.setItem('bookings', JSON.stringify(bookings));
-                
-                // Show success message
-                document.getElementById('successMessage').style.display = 'block';
-                document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
+                const mailtoURL = `mailto:asifahmed3393939@gmail.com?subject=${emailSubject}&body=${emailBody}`;
+                window.location.href = mailtoURL;
                 
                 // Reset form
                 document.getElementById('bookingForm').reset();
                 submitBtn.disabled = false;
                 submitBtn.textContent = '🚀 Book My Free Meeting';
                 
-                // Hide success message after 5 seconds
                 setTimeout(function() {
                     document.getElementById('successMessage').style.display = 'none';
                 }, 5000);
-            }, function(error) {
-                console.log('FAILED...', error);
-                
-                // Show error message
-                document.getElementById('errorMessage').style.display = 'block';
-                document.getElementById('errorMessage').scrollIntoView({ behavior: 'smooth' });
-                
-                submitBtn.disabled = false;
-                submitBtn.textContent = '🚀 Book My Free Meeting';
-                
-                // Hide error message after 5 seconds
-                setTimeout(function() {
-                    document.getElementById('errorMessage').style.display = 'none';
-                }, 5000);
-            });
+            }, 1500);
         });
         
-        // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
